@@ -6,7 +6,6 @@ import { SessionStore } from './sessions'
 import { JsonBookingStore } from './store'
 import { markRead, send } from './whatsapp'
 import { extractIncoming, verifySignature } from './webhook'
-import { OptionMemory, extractTwilio, renderForSms, toTwiml, verifyTwilioSignature } from './twilio'
 
 const app = Fastify({ logger: true })
 const flow = createFlow({
@@ -59,35 +58,6 @@ app.post('/webhook', async (req, reply) => {
       req.log.error({ err }, 'falha ao responder')
     }
   }
-})
-
-// ── Canal Twilio Sandbox (só para testes; a Meta continua em /webhook) ──────────
-app.addContentTypeParser('application/x-www-form-urlencoded', { parseAs: 'string' }, (_req, body, done) => {
-  done(null, Object.fromEntries(new URLSearchParams(body as string)))
-})
-const memory = new OptionMemory()
-const twilioSeen = new Set<string>()
-
-app.post('/twilio', async (req, reply) => {
-  const params = (req.body ?? {}) as Record<string, string>
-  if (config.twilioAuthToken) {
-    const url = config.twilioWebhookUrl || `https://${req.headers.host}/twilio`
-    if (!verifyTwilioSignature(url, params, req.headers['x-twilio-signature'] as string, config.twilioAuthToken)) {
-      return reply.code(403).send('invalid signature')
-    }
-  }
-  const m = extractTwilio(params)
-  reply.type('text/xml')
-  if (!m || twilioSeen.has(m.id)) return toTwiml([])
-  twilioSeen.add(m.id)
-  const replyId = memory.resolve(m.from, m.text)
-  req.log.info({ from: m.from, text: m.text, replyId }, 'twilio recebido')
-  const out = flow({ from: m.from, name: m.name, text: m.text, replyId })
-  const rendered = out.map(renderForSms)
-  // vale a última pergunta que ofereceu opções
-  const last = [...rendered].reverse().find((r) => r.options.length)
-  if (last) memory.set(m.from, last.options)
-  return toTwiml(rendered.map((r) => r.body))
 })
 
 app.listen({ port: config.port, host: '0.0.0.0' }).then(() => {

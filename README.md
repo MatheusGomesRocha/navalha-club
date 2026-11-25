@@ -66,14 +66,3 @@ docs/     decisões de design
 ## Licença
 
 MIT
-
-### Testando sem número da Meta: Twilio Sandbox
-
-A Meta restringe o envio do número de teste (EUA) para o Brasil. Para testar do seu celular sem número próprio, o bot também atende a **Twilio Sandbox for WhatsApp** na rota `POST /twilio`. A rota da Meta (`/webhook`) continua igual e é a que vale em produção (tag `meta-cloud-api-v1` guarda o estado só com a Meta).
-
-1. Crie uma conta gratuita na Twilio e abra *Messaging → Try it out → Send a WhatsApp message*.
-2. No seu WhatsApp, envie o código de adesão (`join ...`) para o número do sandbox.
-3. Em *Sandbox settings*, em **When a message comes in**, use `https://SEU-TUNEL/twilio` (método POST).
-4. Mande "oi". As opções chegam numeradas (1, 2, 3...) e você responde com o número, já que o sandbox não tem botões.
-
-Para voltar à Meta, basta usar o número real cadastrado lá: nada precisa mudar no código.
