@@ -1,0 +1,19 @@
+{
+  "name": "navalha-club",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "dev": "npm run dev -w @navalha/web",
+    "build": "npm run build -w @navalha/web",
+    "bot": "npm run dev -w @navalha/bot",
+    "bot:chat": "npm run chat -w @navalha/bot",
+    "test": "vitest run",
+    "typecheck": "npm run typecheck -w @navalha/web && npm run typecheck -w @navalha/bot"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}

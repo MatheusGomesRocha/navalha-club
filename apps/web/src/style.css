@@ -1,0 +1,56 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces Variable', ui-serif, Georgia, serif;
+
+  --color-cream: #f5f0e6;
+  --color-paper: #fbf8f2;
+  --color-ink: #16120e;
+  --color-ink-soft: #5a5147;
+  --color-line: #e4dccb;
+  --color-brass: #c08a33;
+  --color-brass-deep: #8a5b14;
+  --color-oxblood: #7a1f1f;
+  --color-ok: #2f6b4f;
+
+  --shadow-card: 0 1px 0 rgb(22 18 14 / 0.04), 0 12px 32px -16px rgb(22 18 14 / 0.25);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+  body {
+    @apply bg-cream font-sans text-ink antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brass-deep);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition
+      disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .btn-primary { @apply bg-ink text-cream hover:bg-black; }
+  .btn-brass { @apply bg-brass text-ink hover:brightness-105; }
+  .btn-ghost { @apply border border-line bg-paper text-ink hover:border-ink; }
+  .eyebrow { @apply text-xs font-semibold uppercase tracking-[0.18em] text-brass-deep; }
+  .card { @apply rounded-3xl border border-line bg-paper shadow-card; }
+  .field {
+    @apply w-full rounded-xl border border-line bg-white px-4 py-3 text-sm outline-none transition
+      placeholder:text-ink-soft/60 focus:border-ink;
+  }
+  .pole {
+    background: repeating-linear-gradient(-45deg, var(--color-oxblood) 0 14px, var(--color-cream) 14px 28px, #24456b 28px 42px, var(--color-cream) 42px 56px);
+  }
+}
