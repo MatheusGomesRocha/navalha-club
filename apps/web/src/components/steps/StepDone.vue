@@ -15,7 +15,7 @@ const pay = computed(() =>
   : `Pago no cartão final ${b.value.payment.cardLast4}`,
 )
 const wa = computed(() => {
-  const msg = `Olá! Agendei ${service.value.name} com ${barber.value.name} em ${formatDateShort(b.value.date)} às ${b.value.time}. Código ${b.value.id}.`
+  const msg = `oi`
   return `https://wa.me/${SHOP.phone}?text=${encodeURIComponent(msg)}`
 })
 </script>
