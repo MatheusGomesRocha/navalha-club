@@ -112,3 +112,29 @@ describe('webhook', () => {
     expect(p.interactive.action.buttons[0].reply.title.length).toBeLessThanOrEqual(20)
   })
 })
+
+import { OptionMemory, extractTwilio, renderForSms, toTwiml, verifyTwilioSignature } from './twilio'
+
+describe('canal Twilio (sandbox)', () => {
+  it('numera botões e listas e traduz o número de volta para o id', () => {
+    const { flow } = setup()
+    const out = flow({ from: '5585911112222', text: 'oi' })
+    const r = renderForSms(out[0])
+    expect(r.body).toContain('1. Agendar horário')
+    const mem = new OptionMemory()
+    mem.set('5585911112222', r.options)
+    expect(mem.resolve('5585911112222', '2')).toBe('menu:mine')
+    expect(mem.resolve('5585911112222', '9')).toBeUndefined()
+    expect(mem.resolve('5585911112222', 'olá')).toBeUndefined()
+  })
+  it('extrai a mensagem, escapa o TwiML e valida a assinatura', () => {
+    const m = extractTwilio({ MessageSid: 'SM1', From: 'whatsapp:+558591718609', Body: 'oi', ProfileName: 'Matheus' })
+    expect(m).toMatchObject({ id: 'SM1', from: '558591718609', text: 'oi' })
+    expect(toTwiml(['a & b <c>'])).toContain('a &amp; b &lt;c&gt;')
+    const params = { Body: 'oi', From: 'whatsapp:+1' }
+    const url = 'https://x.example/twilio'
+    const sig = createHmac('sha1', 'tok').update(url + 'Bodyoi' + 'Fromwhatsapp:+1').digest('base64')
+    expect(verifyTwilioSignature(url, params, sig, 'tok')).toBe(true)
+    expect(verifyTwilioSignature(url, params, sig, 'outro')).toBe(false)
+  })
+})

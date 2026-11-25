@@ -4,6 +4,9 @@ export const config = {
   verifyToken: process.env.WHATSAPP_VERIFY_TOKEN ?? '',
   appSecret: process.env.WHATSAPP_APP_SECRET ?? '',
   graphVersion: process.env.GRAPH_API_VERSION ?? 'v21.0',
+  /** Canal extra (sandbox de testes). A rota da Meta continua ativa e é o padrão. */
+  twilioAuthToken: process.env.TWILIO_AUTH_TOKEN ?? '',
+  twilioWebhookUrl: process.env.TWILIO_WEBHOOK_URL ?? '',
   port: Number(process.env.PORT ?? 3000),
   siteUrl: process.env.SITE_URL ?? 'http://localhost:5173/',
   /** Sem credenciais, as respostas só são impressas no console. */
