@@ -52,7 +52,17 @@ async function graph(body: unknown) {
   if (!res.ok) throw new Error(`WhatsApp API ${res.status}: ${await res.text()}`)
 }
 
-export async function send(to: string, messages: Outgoing[]) {
+/**
+ * Números móveis do Brasil: a Meta entrega o wa_id sem o nono dígito (55 + DDD + 8 dígitos),
+ * mas a lista de destinatários e o envio esperam 55 + DDD + 9 + 8 dígitos.
+ */
+export function normalizeBr(to: string) {
+  const m = /^55(\d{2})([6-9]\d{7})$/.exec(to)
+  return m ? `55${m[1]}9${m[2]}` : to
+}
+
+export async function send(rawTo: string, messages: Outgoing[]) {
+  const to = normalizeBr(rawTo)
   for (const m of messages) {
     const payload = toPayload(to, m)
     if (config.dryRun) {
