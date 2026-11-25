@@ -42,6 +42,8 @@ app.post('/webhook', async (req, reply) => {
   const incoming = extractIncoming(req.body)
   const kinds = ((req.body as any)?.entry ?? []).flatMap((e: any) => (e.changes ?? []).map((c: any) => c.field + ':' + Object.keys(c.value ?? {}).join('/')))
   req.log.info({ kinds, mensagens: incoming.map((m) => ({ id: m.id.slice(-8), from: m.from, text: m.text, replyId: m.replyId })) }, 'webhook recebido')
+  const statuses = ((req.body as any)?.entry ?? []).flatMap((e: any) => (e.changes ?? []).flatMap((c: any) => c.value?.statuses ?? []))
+  if (statuses.length) req.log.info({ statuses: statuses.map((st: any) => ({ status: st.status, to: st.recipient_id, errors: st.errors })) }, 'status de entrega')
   for (const m of incoming) {
     if (seen.has(m.id)) continue
     seen.add(m.id)
@@ -50,7 +52,8 @@ app.post('/webhook', async (req, reply) => {
     try {
       const out = flow(m)
       req.log.info({ respostas: out.length, tipos: out.map((o) => o.type) }, 'enviando')
-      await send(m.from, out)
+      const sent = await send(m.from, out)
+      req.log.info({ sent }, 'retorno da API')
       req.log.info('resposta enviada')
     } catch (err) {
       req.log.error({ err }, 'falha ao responder')

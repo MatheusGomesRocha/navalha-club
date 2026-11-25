@@ -49,7 +49,9 @@ async function graph(body: unknown) {
     headers: { Authorization: `Bearer ${config.token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
-  if (!res.ok) throw new Error(`WhatsApp API ${res.status}: ${await res.text()}`)
+  const txt = await res.text()
+  if (!res.ok) throw new Error(`WhatsApp API ${res.status}: ${txt}`)
+  return txt
 }
 
 /**
@@ -63,14 +65,16 @@ export function normalizeBr(to: string) {
 
 export async function send(rawTo: string, messages: Outgoing[]) {
   const to = normalizeBr(rawTo)
+  const results: string[] = []
   for (const m of messages) {
     const payload = toPayload(to, m)
     if (config.dryRun) {
       console.log(`[dry-run → ${to}]`, JSON.stringify(payload))
       continue
     }
-    await graph(payload) // em sequência, para manter a ordem das mensagens
+    results.push(await graph(payload)) // em sequência, para manter a ordem das mensagens
   }
+  return results
 }
 
 export async function markRead(messageId: string) {
