@@ -38,13 +38,19 @@ app.post('/webhook', async (req, reply) => {
   }
   reply.code(200).send('ok') // responde rápido; processa depois
 
-  for (const m of extractIncoming(req.body)) {
+  const incoming = extractIncoming(req.body)
+  const kinds = ((req.body as any)?.entry ?? []).flatMap((e: any) => (e.changes ?? []).map((c: any) => c.field + ':' + Object.keys(c.value ?? {}).join('/')))
+  req.log.info({ kinds, mensagens: incoming.map((m) => ({ id: m.id.slice(-8), from: m.from, text: m.text, replyId: m.replyId })) }, 'webhook recebido')
+  for (const m of incoming) {
     if (seen.has(m.id)) continue
     seen.add(m.id)
     if (seen.size > 5000) seen.delete(seen.values().next().value as string)
     void markRead(m.id)
     try {
-      await send(m.from, flow(m))
+      const out = flow(m)
+      req.log.info({ respostas: out.length, tipos: out.map((o) => o.type) }, 'enviando')
+      await send(m.from, out)
+      req.log.info('resposta enviada')
     } catch (err) {
       req.log.error({ err }, 'falha ao responder')
     }
